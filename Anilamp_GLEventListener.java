@@ -54,48 +54,66 @@ public class Anilamp_GLEventListener implements GLEventListener {
   public void dispose(GLAutoDrawable drawable){
     GL3 gl = drawable.getGL().getGL3();
     // model.dispose(gl)  <--- for every model
+    floor.dispose(gl);
+    light.dispose(gl);
   }
 
 
   /**** SCENE ****/
 
-  /* declarations here
-
-  private Model cube, floor...
-  private Light light;
-
-  */
+  /* declarations here*/
 
   private Light light;
-  private Model floor, window;
+  private Model floor, window, wall;
 
   public void initialise(GL3 gl){
-    floor = initPlane(gl);
-
+    int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/wall.jpg");
+    int[] textureId1 = TextureLibrary.loadTexture(gl, "./textures/floor.jpg");
+    light = new Light(gl);
+    light.setCamera(camera);
+    floor = initFloor(gl, textureId1);
+    wall = initWall(gl, textureId0);
 
   }
 
   public void render(GL3 gl){
+    gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+    light.setPosition(2,2,2);
+    light.render(gl);
+
+
     floor.setModelMatrix(getMfloor());
     floor.render(gl);
+    wall.setModelMatrix(getMnorthWall());
+    wall.render(gl);
+    wall.setModelMatrix(getMwestWall());
+    wall.render(gl);
   }
-
 
 
   // Initialises plane model for floor and walls
-  public Model initPlane(GL3 gl){
+
+  public Model initFloor(GL3 gl, int[] t){
     Mesh m = new Mesh(gl, Plane.vertices.clone(), Plane.indices.clone());
     Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
-    Material material = new Material(new Vec3(0.1f, 0.5f, 0.91f), new Vec3(0.0f, 0.5f, 0.91f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-    Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m);
+    Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
+    Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
     return plane;
   }
 
-  public Model initWindow(GL3 gl){
+  public Model initWall(GL3 gl, int[] t){
+    Mesh m = new Mesh(gl, Plane.vertices.clone(), Plane.indices.clone());
+    Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
+    Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
+    Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
+    return plane;
+  }
+
+  public Model initWindow(GL3 gl, int[] t){
     Mesh m = new Mesh(gl, Window.vertices.clone(), Window.indices.clone());
     Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
     Material material = new Material(new Vec3(0.1f, 0.5f, 0.91f), new Vec3(0.0f, 0.5f, 0.91f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-    Model window = new Model(gl, camera, light, shader, material, new Mat4(1), m);
+    Model window = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
     return window;
   }
 
@@ -126,6 +144,18 @@ public class Anilamp_GLEventListener implements GLEventListener {
     modelMatrix = Mat4.multiply(Mat4Transform.translate(-size*0.5f,size*0.5f,0), modelMatrix);
     return modelMatrix;
   }
+
+  private Mat4 getMwindow(){
+    float size = 4f;
+    Mat4 modelMatrix = new Mat4(1);
+    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.translate(-size*0.5f,size*0.5f,0), modelMatrix);
+    return modelMatrix;
+  }
+
+
 
   private double startTime;
 
