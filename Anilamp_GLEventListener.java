@@ -11,7 +11,7 @@ public class Anilamp_GLEventListener implements GLEventListener {
 
   private static final boolean DISPLAY_SHADERS = false;
   private Camera camera;
-  private Table table;
+  //private Table table;
 
   public Anilamp_GLEventListener(Camera camera) {
     this.camera = camera;
@@ -57,6 +57,7 @@ public class Anilamp_GLEventListener implements GLEventListener {
     // model.dispose(gl)  <--- for every model
     floor.dispose(gl);
     light.dispose(gl);
+    //table.dispose(gl);
   }
 
 
@@ -67,6 +68,8 @@ public class Anilamp_GLEventListener implements GLEventListener {
   private Light light;
   private Model floor, window, wall, tableTop, tableLeg;
   private SGNode tableRoot;
+  private Table table;
+  private Lamp lamp;
 
   public void initialise(GL3 gl){
     int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/wall.jpg");
@@ -76,50 +79,8 @@ public class Anilamp_GLEventListener implements GLEventListener {
     floor = initFloor(gl, textureId1);
     wall = initWall(gl, textureId0);
 
-    //Table table = new Table(gl, camera, light);
-
-
-
-    tableTop = initFloor(gl, textureId0);
-    tableLeg = initTableLeg(gl, textureId1);
-
-
-    float tableWidth = 2f;
-    float tableDepth = 1f;
-    float tableHeight = 1f;
-    float tableLegSize = 0.1f;
-
-    tableRoot = new NameNode("tableRoot");
-    TransformNode tableTopTranslate = new TransformNode("table transform", Mat4Transform.translate(0, tableHeight, 0));
-
-    NameNode tableTopName = new NameNode("tableTop");
-      Mat4 m = Mat4Transform.scale(tableWidth, 0.1f, tableDepth);
-      m = Mat4.multiply(m, Mat4Transform.translate(0, tableHeight, 0));
-      TransformNode tableTransform = new TransformNode("tableTop transform", m);
-        ModelNode tableTopShape = new ModelNode("Plane(top)", tableTop);
-
-
-    NameNode tableLegName = new NameNode("table leg");
-      TransformNode tableLegTranslate = new TransformNode("tableleg translate",
-                                            Mat4Transform.translate((-tableWidth/2+tableLegSize/2),tableHeight/2,(-tableDepth/2+tableLegSize/2)));
-      m = new Mat4(1);
-      m = Mat4.multiply(m, Mat4Transform.scale(tableLegSize, tableHeight, tableLegSize));
-      m = Mat4.multiply(m, Mat4Transform.translate(0,-tableHeight,0));
-      TransformNode tableLegScale = new TransformNode("TopLeft leg scale", m);
-        ModelNode tableLegShape = new ModelNode("Cube(0)", tableLeg);
-
-
-    tableRoot.addChild(tableTopTranslate);
-      tableTopTranslate.addChild(tableTopName);
-        tableTopName.addChild(tableTransform);
-          tableTransform.addChild(tableTopShape);
-        tableTopName.addChild(tableLegName);
-          tableLegName.addChild(tableLegTranslate);
-          tableLegTranslate.addChild(tableLegScale);
-            tableLegScale.addChild(tableLegShape);
-    tableRoot.update();
-
-
+    table = new Table(gl, camera, light);
+    lamp = new Lamp(gl, camera, light);
 
   }
 
@@ -136,7 +97,11 @@ public class Anilamp_GLEventListener implements GLEventListener {
     wall.setModelMatrix(getMwestWall());
     wall.render(gl);
 
-    tableRoot.draw(gl);
+    table.draw(gl);
+    lamp.draw(gl);
+    lamp.updateLowerArmX();
+    lamp.updateLowerArmY();
+    //lamp.updateUpperArmX();
   }
 
 
