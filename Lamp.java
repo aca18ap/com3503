@@ -22,9 +22,9 @@ public class Lamp {
   private float headDepth = 0.05f;
   private float headHeight = 0.05f;
 
-  private float lowerXrotation = 10, lowerYrotation = 10, upperXrotation = 45, headXrotation = 10;
+  private float lowerXrotation = 10, lowerYrotation = 10, upperZrotation = -30, headXrotation = 10;
 
-  private TransformNode rotateLowerY, rotateLowerX, rotateUpperX;
+  private TransformNode rotateLowerY, rotateLowerX, rotateUpperZ;
 
   private Model base, lowerArm, upperArm, head;
   private SGNode lampRoot;
@@ -71,10 +71,11 @@ public class Lamp {
 
 
     NameNode upperArmName = new NameNode("upperArm");
-      TransformNode upperArmTranslate = new TransformNode("upper arm translate", Mat4Transform.translate(0,upperArmHeight+lowerArmHeight+baseHeight,0));
-      rotateUpperX = new TransformNode("upper arm rotate X", Mat4Transform.rotateAroundX(upperXrotation));
+      TransformNode upperArmTranslate = new TransformNode("upper arm translate", Mat4Transform.translate(0,upperArmHeight/2,0));
+      rotateUpperZ = new TransformNode("upper arm rotate Z", Mat4Transform.rotateAroundZ(upperZrotation));
       m = new Mat4(1);
-      m = Mat4.multiply(m, Mat4Transform.scale(upperArmRadius, upperArmHeight, upperArmHeight));
+      m = Mat4.multiply(m, Mat4Transform.scale(upperArmRadius, upperArmHeight, upperArmRadius));
+      m = Mat4.multiply(m, Mat4Transform.translate(0,0.5f,0));
       TransformNode upperArmScale = new TransformNode("upper arm scale", m);
         ModelNode upperArmShape = new ModelNode("Sphere(1)", upperArm);
 
@@ -89,6 +90,15 @@ public class Lamp {
         rotateLowerY.addChild(lowerArmTranslate);
         lowerArmTranslate.addChild(lowerArmScale);
         lowerArmScale.addChild(lowerArmShape);
+
+        lowerArmTranslate.addChild(upperArmName);
+          upperArmName.addChild(upperArmTranslate);
+
+          upperArmTranslate.addChild(rotateUpperZ);
+          rotateUpperZ.addChild(upperArmScale);
+          upperArmScale.addChild(upperArmShape);
+
+
 
 
     lampRoot.update();
@@ -134,11 +144,11 @@ public class Lamp {
     rotateLowerY.update();
   }
 
-  public void updateUpperArmX(){
+  public void updateUpperArmZ(){
     double elapsedTime = getSeconds()-startTime;
     float rotateAngle = 60f*(float)Math.sin(elapsedTime);
-    rotateUpperX.setTransform(Mat4Transform.rotateAroundX(rotateAngle));
-    rotateUpperX.update();
+    rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(rotateAngle));
+    rotateUpperZ.update();
   }
 
 

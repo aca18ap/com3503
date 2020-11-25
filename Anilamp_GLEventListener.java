@@ -99,9 +99,9 @@ public class Anilamp_GLEventListener implements GLEventListener {
 
     table.draw(gl);
     lamp.draw(gl);
-    lamp.updateLowerArmX();
-    lamp.updateLowerArmY();
-    //lamp.updateUpperArmX();
+    //lamp.updateLowerArmX();
+    //lamp.updateLowerArmY();
+    //lamp.updateUpperArmZ();
   }
 
 
