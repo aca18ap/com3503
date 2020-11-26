@@ -80,14 +80,14 @@ public class Anilamp_GLEventListener implements GLEventListener {
     wall = initWall(gl, textureId0);
 
     table = new Table(gl, camera, light);
-    lamp = new Lamp(gl, camera, light);
+    lamp = new Lamp(gl, camera);
 
   }
 
   public void render(GL3 gl){
     gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-    light.setPosition(2,2,2);
-    light.render(gl);
+    //light.setPosition(2,2,2);
+    //light.render(gl);
 
 
     floor.setModelMatrix(getMfloor());
@@ -99,9 +99,11 @@ public class Anilamp_GLEventListener implements GLEventListener {
 
     table.draw(gl);
     lamp.draw(gl);
-    //lamp.updateLowerArmX();
+    //lamp.updateLowerArmZ();
     //lamp.updateLowerArmY();
     //lamp.updateUpperArmZ();
+    lamp.retractLamp();
+
   }
 
 

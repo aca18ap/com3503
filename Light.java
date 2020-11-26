@@ -22,6 +22,9 @@ public class Light {
     fillBuffers(gl);
   }
 
+
+
+
   public void setPosition(Vec3 v) {
     position.x = v.x;
     position.y = v.y;

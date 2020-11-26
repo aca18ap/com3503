@@ -18,15 +18,15 @@ public class Lamp {
   private float upperArmRadius = 0.05f;
   private float upperArmHeight = 0.3f;
 
-  private float headWidth = 0.05f;
-  private float headDepth = 0.05f;
-  private float headHeight = 0.05f;
+  private float headWidth = 0.1f;
+  private float headDepth = 0.1f;
+  private float headHeight = 0.1f;
 
-  private float lowerXrotation = 10, lowerYrotation = 10, upperZrotation = -30, headXrotation = 10;
+  private float lowerZrotation = 0, lowerYrotation = 45, upperZrotation = -90, headZrotation = 10;
 
-  private TransformNode rotateLowerY, rotateLowerX, rotateUpperZ;
+  private TransformNode rotateLowerY, rotateLowerZ, rotateUpperZ, rotateHeadZ;
 
-  private Model base, lowerArm, upperArm, head;
+  private Model base, lowerArm, upperArm, head, lightBulb;
   private SGNode lampRoot;
 
   private Camera camera;
@@ -34,10 +34,11 @@ public class Lamp {
 
   private double startTime = getSeconds();
 
-  public Lamp(GL3 gl, Camera camera, Light light){
+  public Lamp(GL3 gl, Camera camera){
 
     this.camera = camera;
-    this.light = light;
+    light = new Light(gl);
+
 
 
     int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/jup0vss1.jpg");
@@ -47,7 +48,9 @@ public class Lamp {
     base = initBase(gl, textureId2);
     lowerArm = initArm(gl, textureId0);
     upperArm = initArm(gl, textureId1);
-    head = initBase(gl, textureId0);
+    head = initHead(gl, textureId0);
+    //lightBulb = initLightBulb(gl);
+    // /head.setMaterial.setEmission(1.0f,1.0f,1.0f);
 
 
 
@@ -62,7 +65,7 @@ public class Lamp {
 
     NameNode lowerArmName = new NameNode("lowerArm");
       TransformNode lowerArmTranslate = new TransformNode("lower arm translate",Mat4Transform.translate(0,lowerArmHeight/2,0));
-      rotateLowerX = new TransformNode("lower arm rotate X", Mat4Transform.rotateAroundX(lowerXrotation));
+      rotateLowerZ = new TransformNode("lower arm rotate Z", Mat4Transform.rotateAroundZ(lowerZrotation));
       rotateLowerY = new TransformNode("lower arm rotate Y", Mat4Transform.rotateAroundY(lowerYrotation));
       m = new Mat4(1);
       m = Mat4.multiply(m, Mat4Transform.scale(lowerArmRadius, lowerArmHeight, lowerArmRadius));
@@ -80,23 +83,44 @@ public class Lamp {
         ModelNode upperArmShape = new ModelNode("Sphere(1)", upperArm);
 
 
+    NameNode headName = new NameNode("head");
+      TransformNode headTranslate = new TransformNode("head translate", Mat4Transform.translate(0,upperArmHeight,0));
+      rotateHeadZ = new TransformNode("head rotate Z", Mat4Transform.rotateAroundZ(headZrotation));
+      m = new Mat4(1);
+      m = Mat4.multiply(m, Mat4Transform.scale(headWidth,headHeight, headDepth));
+      m = Mat4.multiply(m, Mat4Transform.translate(0,0.5f,0));
+      TransformNode headScale = new TransformNode("head scale", m);
+        ModelNode headShape = new ModelNode("Cube(0)", head);
+
+    NameNode lightName = new NameNode("light");
+      TransformNode lightTranslate = new TransformNode("light translate", Mat4Transform.translate(0.2f,0,0));
+      m = new Mat4(1);
+      ModelNode lightShape = new ModelNode("Light(0)", head);
+
     lampRoot.addChild(lampRootTranslate);
       lampRootTranslate.addChild(baseName);
         baseName.addChild(baseScale);
         baseScale.addChild(baseShape);
       lampRootTranslate.addChild(lowerArmName);
-      lowerArmName.addChild(rotateLowerX);
-        rotateLowerX.addChild(rotateLowerY);
-        rotateLowerY.addChild(lowerArmTranslate);
+      lowerArmName.addChild(rotateLowerY);
+        rotateLowerY.addChild(rotateLowerZ);
+        rotateLowerZ.addChild(lowerArmTranslate);
         lowerArmTranslate.addChild(lowerArmScale);
         lowerArmScale.addChild(lowerArmShape);
 
         lowerArmTranslate.addChild(upperArmName);
           upperArmName.addChild(upperArmTranslate);
-
           upperArmTranslate.addChild(rotateUpperZ);
           rotateUpperZ.addChild(upperArmScale);
           upperArmScale.addChild(upperArmShape);
+
+          rotateUpperZ.addChild(headName);
+            headName.addChild(headTranslate);
+            headTranslate.addChild(rotateHeadZ);
+            rotateHeadZ.addChild(headScale);
+            headScale.addChild(headShape);
+            //headShape.addChild(lightName);
+              //lightName.addChild(lightShape);
 
 
 
@@ -117,6 +141,15 @@ public class Lamp {
     return base;
   }
 
+  private Model initHead(GL3 gl, int[] t){
+    Mesh m = new Mesh(gl, Cube.vertices.clone(), Cube.indices.clone());
+    Shader shader = new Shader(gl, "./shaders/vs_cube.txt", "./shaders/fs_cube.txt");
+    Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
+    material.setEmission(1.0f,0.0f,0.0f);
+    Model head = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
+    return head;
+  }
+
 
   private Model initArm(GL3 gl, int[] t){
     Mesh m = new Mesh(gl, Sphere.vertices.clone(), Sphere.indices.clone());
@@ -130,11 +163,12 @@ public class Lamp {
     lampRoot.draw(gl);
   }
 
-  public void updateLowerArmX(){
+  public void updateLowerArmZ(float angle){
     double elapsedTime = getSeconds()-startTime;
-    float rotateAngle = 30f*(float)Math.sin(elapsedTime);
-    rotateLowerX.setTransform(Mat4Transform.rotateAroundX(rotateAngle));
-    rotateLowerX.update();
+    float rotateAngle = angle*(float)Math.sin(elapsedTime);
+    lowerZrotation = rotateAngle;
+    rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(lowerZrotation));
+    rotateLowerZ.update();
   }
 
   public void updateLowerArmY(){
@@ -144,12 +178,32 @@ public class Lamp {
     rotateLowerY.update();
   }
 
-  public void updateUpperArmZ(){
+  public void updateUpperArmZ(float angle){
     double elapsedTime = getSeconds()-startTime;
-    float rotateAngle = 60f*(float)Math.sin(elapsedTime);
-    rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(rotateAngle));
+    float rotateAngle = -angle*(float)Math.sin(elapsedTime);
+    upperZrotation = rotateAngle;
+    rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(upperZrotation));
     rotateUpperZ.update();
   }
+
+  public void retractLamp(){
+    if (lowerZrotation<=64){
+
+      updateLowerArmZ(65f);
+    }
+    if (upperZrotation>=-150){
+      System.out.println(upperZrotation);
+      updateUpperArmZ(151f);
+    }
+
+  }
+
+
+  public float getLowerArmZ(){
+    return this.lowerZrotation;
+  }
+
+
 
 
   private double getSeconds() {
