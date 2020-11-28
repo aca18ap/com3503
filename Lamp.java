@@ -1,4 +1,5 @@
 import gmaths.*;
+import java.util.Random;
 import java.nio.*;
 import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
@@ -22,7 +23,7 @@ public class Lamp {
   private float headDepth = 0.1f;
   private float headHeight = 0.1f;
 
-  private float lowerZrotation = 0, lowerYrotation = 45, upperZrotation = -90, headZrotation = 10;
+  private float lowerZrotation = 0, lowerYrotation = 0, upperZrotation = 0, headZrotation = 0;
 
   private TransformNode rotateLowerY, rotateLowerZ, rotateUpperZ, rotateHeadZ;
 
@@ -65,7 +66,7 @@ public class Lamp {
 
     NameNode lowerArmName = new NameNode("lowerArm");
       TransformNode lowerArmTranslate = new TransformNode("lower arm translate",Mat4Transform.translate(0,lowerArmHeight/2,0));
-      rotateLowerZ = new TransformNode("lower arm rotate Z", Mat4Transform.rotateAroundZ(lowerZrotation));
+      rotateLowerZ = new TransformNode("lower arm rotate Z", Mat4Transform.rotateAroundZ(-lowerZrotation));
       rotateLowerY = new TransformNode("lower arm rotate Y", Mat4Transform.rotateAroundY(lowerYrotation));
       m = new Mat4(1);
       m = Mat4.multiply(m, Mat4Transform.scale(lowerArmRadius, lowerArmHeight, lowerArmRadius));
@@ -75,7 +76,7 @@ public class Lamp {
 
     NameNode upperArmName = new NameNode("upperArm");
       TransformNode upperArmTranslate = new TransformNode("upper arm translate", Mat4Transform.translate(0,upperArmHeight/2,0));
-      rotateUpperZ = new TransformNode("upper arm rotate Z", Mat4Transform.rotateAroundZ(upperZrotation));
+      rotateUpperZ = new TransformNode("upper arm rotate Z", Mat4Transform.rotateAroundZ(-upperZrotation));
       m = new Mat4(1);
       m = Mat4.multiply(m, Mat4Transform.scale(upperArmRadius, upperArmHeight, upperArmRadius));
       m = Mat4.multiply(m, Mat4Transform.translate(0,0.5f,0));
@@ -164,39 +165,81 @@ public class Lamp {
   }
 
   public void updateLowerArmZ(float angle){
-    double elapsedTime = getSeconds()-startTime;
-    float rotateAngle = angle*(float)Math.sin(elapsedTime);
-    lowerZrotation = rotateAngle;
-    rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(lowerZrotation));
-    rotateLowerZ.update();
+    if(!((angle-1)<lowerZrotation && (angle+1)> lowerZrotation)){
+      if (lowerZrotation >= (angle-1f)){
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        lowerZrotation = rotateAngle;
+        rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(-lowerZrotation));
+        rotateLowerZ.update();
+      }else{
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        lowerZrotation = rotateAngle;
+        rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(-lowerZrotation));
+        rotateLowerZ.update();
+      }
+    }
   }
 
-  public void updateLowerArmY(){
-    double elapsedTime = getSeconds()-startTime;
-    float rotateAngle = 30f*(float)Math.sin(elapsedTime);
-    rotateLowerY.setTransform(Mat4Transform.rotateAroundY(rotateAngle));
-    rotateLowerY.update();
+  public void updateLowerArmY(float angle){
+    if(!((angle-1)<lowerYrotation && (angle+1)> lowerYrotation)){
+      if (lowerYrotation >= (angle-1f)){
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        lowerYrotation = rotateAngle;
+        rotateLowerY.setTransform(Mat4Transform.rotateAroundY(-lowerYrotation));
+        rotateLowerY.update();
+      }else{
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        lowerYrotation = rotateAngle;
+        rotateLowerY.setTransform(Mat4Transform.rotateAroundY(-lowerYrotation));
+        rotateLowerY.update();
+      }
+    }
   }
 
   public void updateUpperArmZ(float angle){
-    double elapsedTime = getSeconds()-startTime;
-    float rotateAngle = -angle*(float)Math.sin(elapsedTime);
-    upperZrotation = rotateAngle;
-    rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(upperZrotation));
-    rotateUpperZ.update();
+    if(!((angle-1)<upperZrotation && (angle+1)> upperZrotation)){
+      if (upperZrotation >= (angle-1f)){
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        upperZrotation = rotateAngle;
+        rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(-upperZrotation));
+        rotateUpperZ.update();
+      }else{
+        double elapsedTime = getSeconds()-startTime;
+        float rotateAngle = angle*(float)Math.sin(elapsedTime);
+        upperZrotation = rotateAngle;
+        rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(-upperZrotation));
+        rotateUpperZ.update();
+      }
+    }
+  }
+
+
+  public void setLampPosition(float lowY, float lowZ, float upZ){
+    updateLowerArmY(lowY);
+    updateLowerArmZ(lowZ);
+    updateUpperArmZ(upZ);
   }
 
   public void retractLamp(){
-    if (lowerZrotation<=64){
-
-      updateLowerArmZ(65f);
-    }
-    if (upperZrotation>=-150){
-      System.out.println(upperZrotation);
-      updateUpperArmZ(151f);
-    }
-
+    updateLowerArmZ(-65f);
+    updateUpperArmZ(150f);
+    updateLowerArmY(0f);
   }
+
+
+  public void randomLampPosition(){
+    Random random = new Random();
+    updateLowerArmZ((-65f + random.nextFloat() * (15f - (-65f))));
+    updateUpperArmZ((-65f + random.nextFloat() * (15f - (-65f))));
+    updateLowerArmY((-180f + random.nextFloat() * (180f - (-180f))));
+  }
+
+
 
 
   public float getLowerArmZ(){

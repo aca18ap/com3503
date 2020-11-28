@@ -102,7 +102,14 @@ public class Anilamp_GLEventListener implements GLEventListener {
     //lamp.updateLowerArmZ();
     //lamp.updateLowerArmY();
     //lamp.updateUpperArmZ();
-    lamp.retractLamp();
+
+    if (!(getSeconds()-startTime > 5)){
+      lamp.setLampPosition(40f, -20f, 50f);
+    }else{
+      //lamp.randomLampPosition();
+      lamp.retractLamp();
+    }
+    //lamp.changeLampPosition(Math.random())
 
   }
 
