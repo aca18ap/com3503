@@ -12,6 +12,7 @@ public class Table {
   private float tableDepth = 1f;
   private float tableHeight = 1f;
   private float tableLegSize = 0.1f;
+  private float tableTopHeight = 0.1f;
 
   private Model top, leg0, leg1, leg2, leg3;
   private SGNode tableRoot;
@@ -39,7 +40,7 @@ public class Table {
     TransformNode tableTopTranslate = new TransformNode("table transform", Mat4Transform.translate(0, tableHeight-0.1f, -2.0f+tableDepth/2));
 
     NameNode tableTopName = new NameNode("tableTop");
-      Mat4 m = Mat4Transform.scale(tableWidth, 0.1f, tableDepth);
+      Mat4 m = Mat4Transform.scale(tableWidth, tableTopHeight, tableDepth);
       m = Mat4.multiply(m, Mat4Transform.translate(0, tableHeight, 0));
       TransformNode tableTransform = new TransformNode("tableTop transform", m);
         ModelNode tableTopShape = new ModelNode("Plane(top)", top);
@@ -133,5 +134,10 @@ public class Table {
     Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
     return plane;
   }
+
+  public float getTableHeight(){
+    return this.tableHeight + this.tableTopHeight/2;
+  }
+
 
 }

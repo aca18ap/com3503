@@ -70,6 +70,7 @@ public class Anilamp_GLEventListener implements GLEventListener {
   private SGNode tableRoot;
   private Table table;
   private Lamp lamp;
+  private Heli heli;
 
   public void initialise(GL3 gl){
     int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/wall.jpg");
@@ -80,7 +81,8 @@ public class Anilamp_GLEventListener implements GLEventListener {
     wall = initWall(gl, textureId0);
 
     table = new Table(gl, camera, light);
-    lamp = new Lamp(gl, camera);
+    lamp = new Lamp(gl, camera, table);
+    heli = new Heli(gl, camera, light, table);
 
   }
 
@@ -99,15 +101,21 @@ public class Anilamp_GLEventListener implements GLEventListener {
 
     table.draw(gl);
     lamp.draw(gl);
+
+    heli.draw(gl);
+
     //lamp.updateLowerArmZ();
     //lamp.updateLowerArmY();
     //lamp.updateUpperArmZ();
 
-    if (!(getSeconds()-startTime > 5)){
-      lamp.setLampPosition(40f, -20f, 50f);
+    if (!(getSeconds()-startTime > 10)){
+      lamp.retractLamp();
+      heli.heliFloat(2f);
     }else{
       //lamp.randomLampPosition();
-      lamp.retractLamp();
+      lamp.setLampPosition(40f, -20f, 50f);
+      heli.heliLand();
+
     }
     //lamp.changeLampPosition(Math.random())
 

@@ -9,8 +9,8 @@ import com.jogamp.opengl.util.glsl.*;
 
 public class Lamp {
 
-  private float baseWidth = 0.1f;
-  private float baseDepth = 0.1f;
+  private float baseWidth = 0.15f;
+  private float baseDepth = 0.15f;
   private float baseHeight = 0.03f;
 
   private float lowerArmRadius = 0.05f;
@@ -32,13 +32,17 @@ public class Lamp {
 
   private Camera camera;
   private Light light;
+  private Table table;
+
+
 
   private double startTime = getSeconds();
 
-  public Lamp(GL3 gl, Camera camera){
+  public Lamp(GL3 gl, Camera camera, Table table){
 
     this.camera = camera;
     light = new Light(gl);
+    this.table = table;
 
 
 
@@ -56,7 +60,7 @@ public class Lamp {
 
 
     lampRoot = new NameNode("lampRoot");
-    TransformNode lampRootTranslate = new TransformNode("lamp transform", Mat4Transform.translate(0,1,0));
+    TransformNode lampRootTranslate = new TransformNode("lamp transform", Mat4Transform.translate(-0.7f,table.getTableHeight()+baseHeight/2,-1.8f));
 
     NameNode baseName = new NameNode("base");
       Mat4 m = Mat4Transform.scale(baseWidth, baseHeight, baseDepth);
@@ -127,7 +131,7 @@ public class Lamp {
 
 
     lampRoot.update();
-    lampRoot.print(0, false);
+    //lampRoot.print(0, false);
 
 
 
