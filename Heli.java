@@ -1,10 +1,6 @@
 import gmaths.*;
-import java.nio.*;
-import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.util.*;
-import com.jogamp.opengl.util.awt.*;
-import com.jogamp.opengl.util.glsl.*;
+
 
 public class Heli {
 
@@ -136,7 +132,7 @@ public class Heli {
 
   private Model initProp(GL3 gl, int[] t){
     Mesh m = new Mesh(gl, Sphere.vertices.clone(), Sphere.indices.clone());
-    Shader shader = new Shader(gl, "./shaders/vs_cube.txt", "./shaders/fs_cube.txt");
+    Shader shader = new Shader(gl, "./shaders/vs_sphere.txt", "./shaders/fs_sphere.txt");
     Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
     Model prop = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
     return prop;

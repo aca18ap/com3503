@@ -1,10 +1,6 @@
 import gmaths.*;
-import java.nio.*;
-import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.util.*;
-import com.jogamp.opengl.util.awt.*;
-import com.jogamp.opengl.util.glsl.*;
+
 
 public class Table {
 
@@ -129,7 +125,7 @@ public class Table {
 
   private Model initTop(GL3 gl, int[] t){
     Mesh m = new Mesh(gl, Plane.vertices.clone(), Plane.indices.clone());
-    Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
+    Shader shader = new Shader(gl, "./shaders/vs_cube.txt", "./shaders/fs_cube.txt");
     Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
     Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
     return plane;

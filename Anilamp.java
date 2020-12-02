@@ -1,18 +1,18 @@
 import gmaths.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.JFrame;
+import javax.swing.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 
-public class Anilamp extends JFrame {
+public class Anilamp extends JFrame implements ActionListener {
 
   private static final int WIDTH = 1024;
   private static final int HEIGHT = 768;
   private static final Dimension dimension = new Dimension(WIDTH, HEIGHT);
   private GLCanvas canvas;
-  private GLEventListener glEventListener;
+  private Anilamp_GLEventListener glEventListener;
   private final FPSAnimator animator;
 
   public static void main(String[] args) {
@@ -32,6 +32,32 @@ public class Anilamp extends JFrame {
     canvas.addMouseMotionListener(new MyMouseInput(camera));
     canvas.addKeyListener(new MyKeyboardInput(camera));
     getContentPane().add(canvas, BorderLayout.CENTER);
+
+    JMenuBar menuBar = new JMenuBar();
+    this.setJMenuBar(menuBar);
+      JMenu fileMenu = new JMenu("File");
+        JMenuItem quitItem = new JMenuItem("Quit");
+        quitItem.addActionListener(this);
+        fileMenu.add(quitItem);
+    menuBar.add(fileMenu);
+
+    JPanel p = new JPanel();
+      JButton b = new JButton("Retract Lamp");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Default Lamp Position");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Random Lamp Position");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Helicopter Take off");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Helicopter Land");
+    this.add(p, BorderLayout.SOUTH);
+
+
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         animator.stop();
@@ -43,7 +69,23 @@ public class Anilamp extends JFrame {
     animator = new FPSAnimator(canvas, 60);
     animator.start();
   }
-}
+  public void actionPerformed(ActionEvent e) {
+    if(e.getActionCommand().equalsIgnoreCase("Retract Lamp")) {
+      glEventListener.lampRetract();
+    }else if(e.getActionCommand().equalsIgnoreCase("Default Lamp Position")){
+      glEventListener.lampDefault();
+    }else if(e.getActionCommand().equalsIgnoreCase("Random Lamp Position")){
+      glEventListener.lampRandom();
+    }else if(e.getActionCommand().equalsIgnoreCase("Helicopter Take Off")){
+      glEventListener.heliTakeOff();
+    }else if(e.getActionCommand().equalsIgnoreCase("Retract Lamp")){
+      glEventListener.heliLand();
+    }else if(e.getActionCommand().equalsIgnoreCase("quit")){
+      System.exit(0);
+    }
+  }
+
+
 
 class MyKeyboardInput extends KeyAdapter  {
   private Camera camera;
@@ -98,4 +140,5 @@ class MyMouseInput extends MouseMotionAdapter {
   public void mouseMoved(MouseEvent e) {
     lastpoint = e.getPoint();
   }
+}
 }

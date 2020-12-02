@@ -55,7 +55,7 @@ public class Anilamp_GLEventListener implements GLEventListener {
   public void dispose(GLAutoDrawable drawable){
     GL3 gl = drawable.getGL().getGL3();
     // model.dispose(gl)  <--- for every model
-    floor.dispose(gl);
+    //floor.dispose(gl);
     light.dispose(gl);
     //table.dispose(gl);
   }
@@ -69,40 +69,41 @@ public class Anilamp_GLEventListener implements GLEventListener {
   private Model floor, window, wall, tableTop, tableLeg;
   private SGNode tableRoot;
   private Table table;
+  private Room room;
   private Lamp lamp;
   private Heli heli;
+  private Skybox skybox;
+  private Pinboard pinboard;
 
   public void initialise(GL3 gl){
     int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/wall.jpg");
     int[] textureId1 = TextureLibrary.loadTexture(gl, "./textures/floor.jpg");
     light = new Light(gl);
     light.setCamera(camera);
-    floor = initFloor(gl, textureId1);
-    wall = initWall(gl, textureId0);
-
+    //floor = initFloor(gl, textureId1);
+    //wall = initWall(gl, textureId0);
+    //window = initWindow(gl, textureId0);
+    room = new Room(gl, camera, light);
     table = new Table(gl, camera, light);
     lamp = new Lamp(gl, camera, table);
     heli = new Heli(gl, camera, light, table);
+    skybox = new Skybox(gl,camera,light);
+    pinboard = new Pinboard(gl, camera, light);
 
   }
 
   public void render(GL3 gl){
     gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-    //light.setPosition(2,2,2);
-    //light.render(gl);
+    light.setPosition(0,16,0);
+    light.render(gl);
 
-
-    floor.setModelMatrix(getMfloor());
-    floor.render(gl);
-    wall.setModelMatrix(getMnorthWall());
-    wall.render(gl);
-    wall.setModelMatrix(getMwestWall());
-    wall.render(gl);
-
+    room.render(gl);
+    skybox.render(gl);
     table.draw(gl);
     lamp.draw(gl);
 
     heli.draw(gl);
+    pinboard.draw(gl);
 
     //lamp.updateLowerArmZ();
     //lamp.updateLowerArmY();
@@ -122,77 +123,27 @@ public class Anilamp_GLEventListener implements GLEventListener {
   }
 
 
-  // Initialises plane model for floor and walls
 
-  public Model initFloor(GL3 gl, int[] t){
-    Mesh m = new Mesh(gl, Plane.vertices.clone(), Plane.indices.clone());
-    Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
-    Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-    Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
-    return plane;
+
+  public void heliTakeOff(){
+    heli.heliFloat(2f);
   }
 
-  public Model initWall(GL3 gl, int[] t){
-    Mesh m = new Mesh(gl, Plane.vertices.clone(), Plane.indices.clone());
-    Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
-    Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-    Model plane = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
-    return plane;
+  public void heliLand(){
+    heli.heliLand();
   }
 
-  public Model initWindow(GL3 gl, int[] t){
-    Mesh m = new Mesh(gl, Window.vertices.clone(), Window.indices.clone());
-    Shader shader = new Shader(gl, "./shaders/vs_plane.txt", "./shaders/fs_plane.txt");
-    Material material = new Material(new Vec3(0.1f, 0.5f, 0.91f), new Vec3(0.0f, 0.5f, 0.91f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-    Model window = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
-    return window;
+  public void lampRetract(){
+    lamp.retractLamp();
   }
 
-  public Model initTableLeg(GL3 gl, int[] t){
-      Mesh m = new Mesh(gl, Cube.vertices.clone(), Cube.indices.clone());
-      Shader shader = new Shader(gl, "./shaders/vs_cube.txt", "./shaders/fs_cube.txt");
-      Material material = new Material(new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), new Vec3(0.3f, 0.3f, 0.3f), 1.0f);
-      Model leg = new Model(gl, camera, light, shader, material, new Mat4(1), m, t);
-      return leg;
+  public void lampRandom(){
+    lamp.randomLampPosition();
   }
 
-  // Matrix model for floor
-  private Mat4 getMfloor(){
-    float size = 4f;
-    Mat4 modelMatrix = new Mat4(1);
-    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
-    return modelMatrix;
+  public void lampDefault(){
+    lamp.setLampPosition(-65f,130f,30f);
   }
-
-  private Mat4 getMnorthWall(){
-    float size = 4f;
-    Mat4 modelMatrix = new Mat4(1);
-    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundX(90), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.translate(0,size*0.5f,-size*0.5f), modelMatrix);
-    return modelMatrix;
-  }
-
-  private Mat4 getMwestWall(){
-    float size = 4f;
-    Mat4 modelMatrix = new Mat4(1);
-    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(90), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.translate(-size*0.5f,size*0.5f,0), modelMatrix);
-    return modelMatrix;
-  }
-
-  private Mat4 getMwindow(){
-    float size = 4f;
-    Mat4 modelMatrix = new Mat4(1);
-    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(90), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.translate(-size*0.5f,size*0.5f,0), modelMatrix);
-    return modelMatrix;
-  }
-
 
 
   private double startTime;
