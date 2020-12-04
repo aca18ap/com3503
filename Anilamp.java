@@ -2,9 +2,14 @@ import gmaths.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.JSlider;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import java.util.Hashtable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 
 public class Anilamp extends JFrame implements ActionListener {
 
@@ -51,11 +56,30 @@ public class Anilamp extends JFrame implements ActionListener {
       b = new JButton("Random Lamp Position");
       b.addActionListener(this);
       p.add(b);
-      b = new JButton("Helicopter Take off");
+      b = new JButton("Helicopter Toggle");
       b.addActionListener(this);
       p.add(b);
-      b = new JButton("Helicopter Land");
+
+
+      JSlider s= new JSlider(1,100,1);
+      s.setPaintLabels(true);
+      Hashtable<Integer, JLabel> pos = new Hashtable<Integer, JLabel>();
+      pos.put(1, new JLabel("Ground"));
+      pos.put(50, new JLabel("50%"));
+      pos.put(100, new JLabel ("100%"));
+      s.setLabelTable(pos);
+      p.add(s);
+      s.addChangeListener(new ChangeListener(){
+        public void stateChanged(ChangeEvent e){
+          glEventListener.setHeliHeight(((JSlider)e.getSource()).getValue()) ;
+        }
+      });
+
+
     this.add(p, BorderLayout.SOUTH);
+
+
+
 
 
     addWindowListener(new WindowAdapter() {
@@ -76,10 +100,8 @@ public class Anilamp extends JFrame implements ActionListener {
       glEventListener.lampDefault();
     }else if(e.getActionCommand().equalsIgnoreCase("Random Lamp Position")){
       glEventListener.lampRandom();
-    }else if(e.getActionCommand().equalsIgnoreCase("Helicopter Take Off")){
-      glEventListener.heliTakeOff();
-    }else if(e.getActionCommand().equalsIgnoreCase("Retract Lamp")){
-      glEventListener.heliLand();
+    }else if(e.getActionCommand().equalsIgnoreCase("Helicopter Toggle")){
+      glEventListener.heliToggle();
     }else if(e.getActionCommand().equalsIgnoreCase("quit")){
       System.exit(0);
     }

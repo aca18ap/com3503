@@ -1,5 +1,5 @@
 import gmaths.*;
-
+import java.util.Random;
 import java.nio.*;
 import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
@@ -12,6 +12,23 @@ public class Anilamp_GLEventListener implements GLEventListener {
   private static final boolean DISPLAY_SHADERS = false;
   private Camera camera;
   //private Table table;
+
+  /* declarations here*/
+
+  private Light light;
+  private Table table;
+  private Room room;
+  private Lamp lamp;
+  private Heli heli;
+  private Skybox skybox;
+  private Pinboard pinboard;
+
+  private boolean lampRetracting, lampRandomizing, lampDefaulting;
+  private boolean togglePropellers, toggleFloat, toggleLand;
+  private Vec3 rndV;
+  private float heliHeight = 2f;
+
+  private double aniStart;
 
   public Anilamp_GLEventListener(Camera camera) {
     this.camera = camera;
@@ -57,32 +74,27 @@ public class Anilamp_GLEventListener implements GLEventListener {
     // model.dispose(gl)  <--- for every model
     //floor.dispose(gl);
     light.dispose(gl);
-    //table.dispose(gl);
+    table.dispose(gl);
+    room.dispose(gl);
+    lamp.dispose(gl);
+    heli.dispose(gl);
+    skybox.dispose(gl);
+    pinboard.dispose(gl);
+
   }
 
 
   /**** SCENE ****/
 
-  /* declarations here*/
 
-  private Light light;
-  private Model floor, window, wall, tableTop, tableLeg;
-  private SGNode tableRoot;
-  private Table table;
-  private Room room;
-  private Lamp lamp;
-  private Heli heli;
-  private Skybox skybox;
-  private Pinboard pinboard;
 
   public void initialise(GL3 gl){
     int[] textureId0 = TextureLibrary.loadTexture(gl, "./textures/wall.jpg");
     int[] textureId1 = TextureLibrary.loadTexture(gl, "./textures/floor.jpg");
     light = new Light(gl);
     light.setCamera(camera);
-    //floor = initFloor(gl, textureId1);
-    //wall = initWall(gl, textureId0);
-    //window = initWindow(gl, textureId0);
+
+
     room = new Room(gl, camera, light);
     table = new Table(gl, camera, light);
     lamp = new Lamp(gl, camera, table);
@@ -105,46 +117,81 @@ public class Anilamp_GLEventListener implements GLEventListener {
     heli.draw(gl);
     pinboard.draw(gl);
 
-    //lamp.updateLowerArmZ();
-    //lamp.updateLowerArmY();
-    //lamp.updateUpperArmZ();
+    lampMotion(); //Lamp motion listener
 
-    if (!(getSeconds()-startTime > 10)){
-      lamp.retractLamp();
-      heli.heliFloat(2f);
-    }else{
-      //lamp.randomLampPosition();
-      lamp.setLampPosition(40f, -20f, 50f);
-      heli.heliLand();
-
-    }
-    //lamp.changeLampPosition(Math.random())
+    heliMotion(); //helicopter motion listener
 
   }
 
 
 
 
-  public void heliTakeOff(){
-    heli.heliFloat(2f);
+  public void heliToggle(){
+    aniStart = getSeconds();
+    if(!toggleFloat){toggleFloat=true;}
+    else{toggleFloat=false;}
   }
 
   public void heliLand(){
     heli.heliLand();
   }
 
-  public void lampRetract(){
-    lamp.retractLamp();
+  private void heliMotion() {
+    if(toggleFloat){heli.heliFloat(heliHeight, aniStart);}else{heli.heliLand();}
   }
 
+  public void lampRetract(){
+    lamp.setInMotion();
+    lampRetracting = true;
+  }
+
+
   public void lampRandom(){
-    lamp.randomLampPosition();
+    Random random = new Random();
+    rndV = new Vec3(
+      (-180f + random.nextFloat() * (180f - (-180f))),
+      (-65f + random.nextFloat() * (15f - (-65f))),
+      (-90f + random.nextFloat() * (0 - (-90f))));
+    lamp.setInMotion();
+    lampRandomizing=true;
   }
 
   public void lampDefault(){
-    lamp.setLampPosition(-65f,130f,30f);
+    lamp.setInMotion();
+    lampDefaulting=true;
   }
 
+  private void lampMotion(){
+    if (lampRetracting){
+      if(lamp.getIfMotion()){
+        lamp.retractLamp();
+      }else{
+        lampRetracting=false;
+      }
+    }
+    else if (lampDefaulting){
+      if(lamp.getIfMotion()){
+        lamp.defaultLamp();
+      }else{
+        lampDefaulting=false;
+      }
+    }
+    else if (lampRandomizing){
+      if(lamp.getIfMotion()){
+        lamp.randomLamp(rndV);
+      }else{
+        lampRandomizing=false;
+      }
+    }
+  }
+
+  public void setHeliHeight(float h){
+    this.heliHeight = h/100*12;
+  }
+
+  public int getTableHeight(){
+    return (int)Math.round(this.table.getTableHeight());
+  }
 
   private double startTime;
 

@@ -86,4 +86,10 @@ public final class Room {
     window.render(gl);
     wall.render(gl);
   }
+
+  public void dispose(GL3 gl){
+    floor.dispose(gl);
+    wall.dispose(gl);
+    window.dispose(gl);
+  }
 }

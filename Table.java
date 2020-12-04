@@ -135,5 +135,12 @@ public class Table {
     return this.tableHeight + this.tableTopHeight/2;
   }
 
+  public void dispose(GL3 gl){
+    top.dispose(gl);
+    leg0.dispose(gl);
+    leg1.dispose(gl);
+    leg2.dispose(gl);
+    leg3.dispose(gl);
+  }
 
 }

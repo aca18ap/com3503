@@ -34,6 +34,7 @@ public class Lamp {
   private Light light;
   private Table table;
 
+  public boolean lymotion, lzmotion, uzmotion;
 
 
   private double startTime = getSeconds();
@@ -60,7 +61,7 @@ public class Lamp {
 
 
     lampRoot = new NameNode("lampRoot");
-    TransformNode lampRootTranslate = new TransformNode("lamp transform", Mat4Transform.translate(-0.7f,table.getTableHeight()+baseHeight/2,-1.8f));
+    TransformNode lampRootTranslate = new TransformNode("lamp transform", Mat4Transform.translate(-0.7f,table.getTableHeight()+baseHeight/2,-1.5f));
 
     NameNode baseName = new NameNode("base");
       Mat4 m = Mat4Transform.scale(baseWidth, baseHeight, baseDepth);
@@ -168,92 +169,80 @@ public class Lamp {
     lampRoot.draw(gl);
   }
 
-  public void updateLowerArmZ(float angle){
-    if(!((angle-1)<lowerZrotation && (angle+1)> lowerZrotation)){
-      if (lowerZrotation >= (angle-1f)){
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        lowerZrotation = rotateAngle;
-        rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(-lowerZrotation));
-        rotateLowerZ.update();
-      }else{
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        lowerZrotation = rotateAngle;
-        rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(-lowerZrotation));
-        rotateLowerZ.update();
-      }
-    }
-  }
 
-  public void updateLowerArmY(float angle){
-    if(!((angle-1)<lowerYrotation && (angle+1)> lowerYrotation)){
-      if (lowerYrotation >= (angle-1f)){
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        lowerYrotation = rotateAngle;
-        rotateLowerY.setTransform(Mat4Transform.rotateAroundY(-lowerYrotation));
-        rotateLowerY.update();
-      }else{
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        lowerYrotation = rotateAngle;
-        rotateLowerY.setTransform(Mat4Transform.rotateAroundY(-lowerYrotation));
-        rotateLowerY.update();
-      }
-    }
-  }
-
-  public void updateUpperArmZ(float angle){
-    if(!((angle-1)<upperZrotation && (angle+1)> upperZrotation)){
-      if (upperZrotation >= (angle-1f)){
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        upperZrotation = rotateAngle;
-        rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(-upperZrotation));
-        rotateUpperZ.update();
-      }else{
-        double elapsedTime = getSeconds()-startTime;
-        float rotateAngle = angle*(float)Math.sin(elapsedTime);
-        upperZrotation = rotateAngle;
-        rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(-upperZrotation));
-        rotateUpperZ.update();
-      }
-    }
-  }
-
-
-  public void setLampPosition(float lowY, float lowZ, float upZ){
-    updateLowerArmY(lowY);
-    updateLowerArmZ(lowZ);
-    updateUpperArmZ(upZ);
-  }
 
   public void retractLamp(){
-    updateLowerArmZ(-65f);
-    updateUpperArmZ(150f);
-    updateLowerArmY(0f);
+    setLampPosition(20f,65f,-150f);
+  }
+
+  public void defaultLamp(){
+    setLampPosition(-20f,30f,-80f);
   }
 
 
-  public void randomLampPosition(){
-    Random random = new Random();
-    updateLowerArmZ((-65f + random.nextFloat() * (15f - (-65f))));
-    updateUpperArmZ((-65f + random.nextFloat() * (15f - (-65f))));
-    updateLowerArmY((-180f + random.nextFloat() * (180f - (-180f))));
+  public void randomLamp(Vec3 v){
+    setLampPosition(v.x, v.y, v.z);
   }
 
 
+  public void setLampPosition(float lowYtarget, float lowZtarget, float upZtarget){
+    float currentLowY = lowerYrotation;
+    float currentLowZ = lowerZrotation;
+    float currentUpZ = upperZrotation;
+    if(!((lowYtarget-1f < currentLowY) && (currentLowY < lowYtarget+1.0f))) {
+      lymotion = true;
+      if(currentLowY > lowYtarget){lowerYrotation -= 1.0f;}
+      else{lowerYrotation += 1.0f;}
+      rotateLowerY.setTransform(Mat4Transform.rotateAroundY(lowerYrotation));
+      rotateLowerY.update();
+    }else{
+      lymotion=false;
+    }
 
+    if(!((lowZtarget-1.0f < currentLowZ) && (currentLowZ < lowZtarget+1.0f))){
+      lzmotion=true;
+      if(currentLowZ > lowZtarget){lowerZrotation -= 1.0f;}
+      else{lowerZrotation += 1.0f;}
+      rotateLowerZ.setTransform(Mat4Transform.rotateAroundZ(lowerZrotation));
+      rotateLowerZ.update();
+    }else{
+      lzmotion=false;
+    }
 
-  public float getLowerArmZ(){
-    return this.lowerZrotation;
+    if(!((upZtarget-1.0f < currentUpZ) && (currentUpZ < upZtarget+1.0f))){
+      uzmotion=true;
+      if(currentUpZ > upZtarget){upperZrotation -= 1.0f;}
+      else{upperZrotation += 1.0f;}
+      rotateUpperZ.setTransform(Mat4Transform.rotateAroundZ(upperZrotation));
+      rotateUpperZ.update();
+    }else{
+      uzmotion=false;
+    }
+
   }
 
+  public Vec3 getLampPosition(){
+    Vec3 pos = new Vec3(lowerZrotation, lowerYrotation, upperZrotation);
+    return pos;
+  }
 
-
+  public boolean getIfMotion(){
+    if(!lymotion && !lzmotion && !uzmotion){
+      return false;
+    }else{return true;}
+  }
 
   private double getSeconds() {
     return System.currentTimeMillis()/1000.0;
+  }
+
+  public void setInMotion(){
+    lymotion = true;
+  }
+  public void dispose(GL3 gl){
+    base.dispose(gl);
+    lowerArm.dispose(gl);
+    upperArm.dispose(gl);
+    head.dispose(gl);
   }
 }

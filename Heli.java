@@ -117,7 +117,7 @@ public class Heli {
           prop2Scale.addChild(prop2Shape);
 
     heliRoot.update();
-    heliRoot.print(0,false);
+    //heliRoot.print(0,false);
 
 
   }
@@ -151,12 +151,12 @@ public class Heli {
     rotorRotation.update();
   }
 
-  public void heliFloat(float h){
+  public void heliFloat(float h, double aniTime){
     turnPropeller();
     if(heliHeight < h-0.05f){
       //VS While climbing
       if((h - heliHeight) < 0.5f){ //If Approaching the target height slow down ascent
-        if(vs > 0.003f){vs = vs - 0.0001f;}
+        if(vs > 0.003f){vs = vs - 0.0005f;}
       }else{
         if(vs < 0.01f) {
           vs=vs*(float)(Math.pow((1+0.001f),60));
@@ -166,8 +166,19 @@ public class Heli {
       heliHeight = heliHeight + vs;
       heliRootTranslate.setTransform(Mat4Transform.translate(0.4f,heliHeight,-1.5f));
       heliRootTranslate.update();
+    }else if(heliHeight > h+0.05){
+      if(heliHeight - h < 0.5f){
+        if(vs < -0.003f){vs = vs + 0.0005f;}
+      }else{
+        if(vs > -0.01f){
+          vs=vs-0.0001f;
+        }
+      }
+      heliHeight = heliHeight+vs;
+      heliRootTranslate.setTransform(Mat4Transform.translate(0.4f,heliHeight,-1.5f));
+      heliRootTranslate.update();
     }else{
-        double elapsedTime = getSeconds()-startTime-180f;
+        double elapsedTime = getSeconds()-aniTime;
         heliHeight = h + 0.05f * (float)Math.sin(elapsedTime);
         heliRootTranslate.setTransform(Mat4Transform.translate(0.4f,heliHeight,-1.5f));
         heliRootTranslate.update();
@@ -175,6 +186,8 @@ public class Heli {
     }
 
   }
+
+
 
   public void heliLand(){
     if(heliHeight > table.getTableHeight()+bodyHeight/2){
@@ -194,6 +207,14 @@ public class Heli {
       //System.out.println(rotorAngle);
       rotorRotation.update();
     }
+  }
+
+  public void dispose(GL3 gl){
+    body.dispose(gl);
+    tail.dispose(gl);
+    rotor.dispose(gl);
+    prop1.dispose(gl);
+    prop2.dispose(gl);
   }
 
 

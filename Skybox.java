@@ -123,4 +123,13 @@ public final class Skybox {
     east.render(gl);
     west.render(gl);
   }
+
+  public void dispose(GL3 gl){
+    sky.dispose(gl);
+    ground.dispose(gl);
+    north.dispose(gl);
+    south.dispose(gl);
+    east.dispose(gl);
+    west.dispose(gl);
+  }
 }

@@ -14,7 +14,6 @@ public final class Pinboard {
   private SGNode pinRoot;
 
   public Pinboard(GL3 gl, Camera camera, Light light){
-    System.out.println("Pinboard init");
 
     this.camera = camera;
     this.light = light;
@@ -111,6 +110,13 @@ public final class Pinboard {
 
   public void draw(GL3 gl){
     pinRoot.draw(gl);
+  }
+
+  public void dispose(GL3 gl){
+    pinboard.dispose(gl);
+    pic1.dispose(gl);
+    pic2.dispose(gl);
+    pic3.dispose(gl);
   }
 
 }
