@@ -31,7 +31,7 @@ public class Lamp {
   private SGNode lampRoot;
 
   private Camera camera;
-  private Light light;
+  private Light light, bulb;
   private Table table;
 
   public boolean lymotion, lzmotion, uzmotion;
@@ -39,11 +39,15 @@ public class Lamp {
 
   private double startTime = getSeconds();
 
-  public Lamp(GL3 gl, Camera camera, Table table){
+  public Lamp(GL3 gl, Camera camera, Light light, Table table){
 
     this.camera = camera;
-    light = new Light(gl);
+    //light = new Light(gl);
     this.table = table;
+    this.light = light;
+    bulb = new Light(gl);
+
+
 
 
 
@@ -235,6 +239,26 @@ public class Lamp {
   private double getSeconds() {
     return System.currentTimeMillis()/1000.0;
   }
+
+  public void lightOff(){
+    Material material = bulb.getMaterial();
+    material.setAmbient(0.1f,0.1f,0.1f);
+    material.setDiffuse(0.2f,0.2f,0.2f);
+    material.setEmission(0.1f,0.1f,0.1f);
+    material.setSpecular(0.1f,0.1f,0.1f);
+    material.setShininess(1f);
+    this.bulb.setMaterial(material);
+  }
+
+  public void lightOn(){
+    Material material = bulb.getMaterial();
+    material.setAmbient(0.5f,0.5f,0.5f);
+    material.setDiffuse(0.8f,0.8f,0.8f);
+    material.setEmission(1.0f,1.0f,1.0f);
+    material.setShininess(32f);
+    this.bulb.setMaterial(material);
+  }
+
 
   public void setInMotion(){
     lymotion = true;

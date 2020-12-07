@@ -10,13 +10,14 @@ public class Light {
   private Mat4 model;
   private Shader shader;
   private Camera camera;
+  private Vec3 dim = new Vec3(1.0f,1.0f,1.0f);
 
   public Light(GL3 gl) {
     material = new Material();
     material.setAmbient(0.5f, 0.5f, 0.5f);
     material.setDiffuse(0.8f, 0.8f, 0.8f);
     material.setSpecular(0.8f, 0.8f, 0.8f);
-    position = new Vec3(3f,2f,1f);
+    position = new Vec3(3f,3f,3f);
     model = new Mat4(1);
     shader = new Shader(gl, "./shaders/vs_light.txt", "./shaders/fs_light.txt");
     fillBuffers(gl);
@@ -45,6 +46,13 @@ public class Light {
     material = m;
   }
 
+  public Vec3 getDim(){
+    return dim;
+  }
+
+  public void setDim(Vec3 d){
+    dim = d;
+  }
   public Material getMaterial() {
     return material;
   }

@@ -20,7 +20,15 @@ public final class Window{
 
   };
 
-  public static final int[] indices = {
+  public static final float[] verticesGlass = {
+    -0.4f, 0.0f,  0.25f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+    -0.4f, 0.0f, -0.25f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+    0.4f, 0.0f, -0.25f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+    0.4f, 0.0f,  0.25f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f
+
+  };
+
+  public static final int[] indicesWall = {
     0, 1, 3,
     1, 2, 3,
     1, 4, 2,
@@ -39,4 +47,8 @@ public final class Window{
     2, 13, 15
   };
 
+  public static final int[] indicesWindow = {
+  0, 1, 2,
+  3, 0, 2
+  };
 }

@@ -47,7 +47,13 @@ public class Anilamp extends JFrame implements ActionListener {
     menuBar.add(fileMenu);
 
     JPanel p = new JPanel();
-      JButton b = new JButton("Retract Lamp");
+      JButton b = new JButton("Toggle Room Light");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Toggle Lamp Light");
+      b.addActionListener(this);
+      p.add(b);
+      b = new JButton("Retract Lamp");
       b.addActionListener(this);
       p.add(b);
       b = new JButton("Default Lamp Position");
@@ -64,9 +70,9 @@ public class Anilamp extends JFrame implements ActionListener {
       JSlider s= new JSlider(1,100,1);
       s.setPaintLabels(true);
       Hashtable<Integer, JLabel> pos = new Hashtable<Integer, JLabel>();
-      pos.put(1, new JLabel("Ground"));
+      pos.put(1, new JLabel("Min"));
       pos.put(50, new JLabel("50%"));
-      pos.put(100, new JLabel ("100%"));
+      pos.put(100, new JLabel ("Max"));
       s.setLabelTable(pos);
       p.add(s);
       s.addChangeListener(new ChangeListener(){
@@ -102,6 +108,10 @@ public class Anilamp extends JFrame implements ActionListener {
       glEventListener.lampRandom();
     }else if(e.getActionCommand().equalsIgnoreCase("Helicopter Toggle")){
       glEventListener.heliToggle();
+    }else if(e.getActionCommand().equalsIgnoreCase("Toggle Room Light")){
+      glEventListener.lightToggle();
+    }else if(e.getActionCommand().equalsIgnoreCase("Toggle Lamp Light")){
+      glEventListener.lampToggle();
     }else if(e.getActionCommand().equalsIgnoreCase("quit")){
       System.exit(0);
     }

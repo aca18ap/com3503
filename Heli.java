@@ -147,7 +147,6 @@ public class Heli {
     if(inc < 20f){inc = inc*(float)(Math.pow(1+0.2f,60));}
     rotorAngle = rotorAngle + inc;
     rotorRotation.setTransform(Mat4Transform.rotateAroundY(rotorAngle));
-    //System.out.println(rotorAngle);
     rotorRotation.update();
   }
 
@@ -156,19 +155,23 @@ public class Heli {
     if(heliHeight < h-0.05f){
       //VS While climbing
       if((h - heliHeight) < 0.5f){ //If Approaching the target height slow down ascent
-        if(vs > 0.003f){vs = vs - 0.0005f;}
+        if(vs > 0.003f){
+          vs = vs - 0.0005f;
+        }
       }else{
         if(vs < 0.01f) {
+          if(vs < 0){vs=0.001f;}
           vs=vs*(float)(Math.pow((1+0.001f),60));
         }
       }
-       //Realistic take off with exponential increase
       heliHeight = heliHeight + vs;
       heliRootTranslate.setTransform(Mat4Transform.translate(0.4f,heliHeight,-1.5f));
       heliRootTranslate.update();
     }else if(heliHeight > h+0.05){
       if(heliHeight - h < 0.5f){
-        if(vs < -0.003f){vs = vs + 0.0005f;}
+        if(vs < -0.003f){
+          vs = vs + 0.0005f;
+        }
       }else{
         if(vs > -0.01f){
           vs=vs-0.0001f;
@@ -190,11 +193,9 @@ public class Heli {
 
 
   public void heliLand(){
-    if(heliHeight > table.getTableHeight()+bodyHeight/2){
-      heliHeight = heliHeight - 0.01f;
-      heliRootTranslate.setTransform(Mat4Transform.translate(0.4f,heliHeight,-1.5f));
-      heliRootTranslate.update();
-      turnPropeller();
+    float ground = table.getTableHeight()+bodyHeight/2;
+    if(heliHeight > ground){
+      heliFloat(ground, getSeconds());
     }
     shutPropeller();
   }
@@ -204,7 +205,6 @@ public class Heli {
       if(inc > 20f){inc = inc/(float)(Math.pow(1+0.2f,60));}
       rotorAngle = rotorAngle + inc;
       rotorRotation.setTransform(Mat4Transform.rotateAroundY(rotorAngle));
-      //System.out.println(rotorAngle);
       rotorRotation.update();
     }
   }
